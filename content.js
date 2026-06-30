@@ -69,8 +69,6 @@
     var range = selection.getRangeAt(0);
     if (!range) return;
 
-    var toastEl;
-
     // ---- case A: selection entirely within a single .katex -----------------
     var singleKatex = findKatexAncestor(range.commonAncestorContainer);
     if (singleKatex && isFullyWithin(selection, singleKatex)) {
@@ -82,7 +80,7 @@
         event.preventDefault();
         event.stopImmediatePropagation();
         writeClipboard(event, output, output);
-        showToast(singleKatex);
+        showToast();
         return;
       }
     }
@@ -113,7 +111,7 @@
     event.stopImmediatePropagation();
 
     writeClipboard(event, html, text);
-    showToast(originals[0]);
+    showToast();
   }
 
   // ---------------------------------------------------------------------------
@@ -243,25 +241,26 @@
   // Toast
   // ---------------------------------------------------------------------------
 
-  function showToast(katexEl) {
-    var rect = katexEl.getBoundingClientRect();
+  function showToast() {
     var toast = document.createElement('div');
     toast.textContent = TOAST_TEXT[locale] || TOAST_TEXT.en;
     Object.assign(toast.style, {
       position: 'fixed',
       zIndex: '2147483647',
-      padding: '3px 10px',
+      top: '12px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      padding: '4px 14px',
       background: '#10a37f',
       color: '#fff',
       fontSize: '12px',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       fontWeight: '500',
-      borderRadius: '4px',
+      borderRadius: '6px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
       pointerEvents: 'none',
       opacity: '0',
-      transition: 'opacity 150ms ease',
-      top: Math.max(4, rect.top - 28) + 'px',
-      left: rect.left + 'px'
+      transition: 'opacity 150ms ease'
     });
     document.body.appendChild(toast);
 
