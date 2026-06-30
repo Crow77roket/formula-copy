@@ -1,6 +1,6 @@
 {
   "appName":          { "message": "Formula Copy" },
-  "appDescription":   { "message": "Copy KaTeX-rendered math formulas as clean LaTeX source code. Originally designed for copying math from ChatGPT into Obsidian — select, Ctrl+C, and get clean LaTeX instead of broken Unicode." },
+  "appDescription":   { "message": "Copy KaTeX math as clean LaTeX. Originally built for ChatGPT-to-Obsidian workflow. Works on any site with KaTeX formulas." },
   "actionTitle":      { "message": "Formula Copy" },
 
   "popupEnabled":     { "message": "Enabled — formulas will be copied as LaTeX" },

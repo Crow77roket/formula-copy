@@ -1,6 +1,6 @@
 {
   "appName":          { "message": "Formula Copy" },
-  "appDescription":   { "message": "Ursprünglich zum Kopieren von Formeln aus ChatGPT nach Obsidian entwickelt. Auswählen, Ctrl+C, und sauberen LaTeX-Code statt gebrochenem Unicode erhalten." },
+  "appDescription":   { "message": "Kopieren Sie KaTeX-Formeln als LaTeX-Code. Ursprünglich für ChatGPT-zu-Obsidian entwickelt. Funktioniert auf jeder KaTeX-Seite." },
   "actionTitle":      { "message": "Formula Copy" },
   "toastCopied":      { "message": "✓ LaTeX" }
 }
