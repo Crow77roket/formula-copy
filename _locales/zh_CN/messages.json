@@ -1,0 +1,14 @@
+{
+  "appName":          { "message": "Formula Copy" },
+  "appDescription":   { "message": "复制 KaTeX 渲染的数学公式，自动转换为干净的 LaTeX 源码。最初为 ChatGPT 复制公式到 Obsidian 的场景设计。选中即复制，粘贴得到 LaTeX 而非断裂的 Unicode。" },
+  "actionTitle":      { "message": "Formula Copy" },
+
+  "popupEnabled":     { "message": "已启用 — 公式复制生效中" },
+  "popupDisabled":    { "message": "未启用" },
+  "popupEnable":      { "message": "在此网站启用" },
+  "popupDisable":     { "message": "停用" },
+  "popupCurrent":     { "message": "（当前）" },
+  "popupEnabledSites": { "message": "已启用的网站" },
+
+  "toastCopied":      { "message": "✓ LaTeX" }
+}
