@@ -1,6 +1,6 @@
 {
   "appName":          { "message": "Formula Copy" },
-  "appDescription":   { "message": "ChatGPT에서 Obsidian으로 수식을 복사하기 위해 설계되었습니다. KaTeX로 렌더링된 수학 공식을 깨진 유니코드 대신 깨끗한 LaTeX 소스 코드로 복사합니다." },
+  "appDescription":   { "message": "원래 ChatGPT에서 Obsidian으로 수식을 복사하기 위해 개발되었습니다. KaTeX로 렌더링된 수학 공식을 깨진 유니코드 대신 깨끗한 LaTeX 소스 코드로 복사합니다." },
   "actionTitle":      { "message": "Formula Copy" },
   "toastCopied":      { "message": "✓ LaTeX" }
 }

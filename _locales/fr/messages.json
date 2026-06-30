@@ -1,6 +1,6 @@
 {
   "appName":          { "message": "Formula Copy" },
-  "appDescription":   { "message": "Conçu pour copier des formules de ChatGPT vers Obsidian. Sélectionnez, Ctrl+C, et obtenez du LaTeX propre au lieu d'Unicode cassé." },
+  "appDescription":   { "message": "Initialement conçu pour copier des formules de ChatGPT vers Obsidian. Sélectionnez, Ctrl+C, et obtenez du LaTeX propre au lieu d'Unicode cassé." },
   "actionTitle":      { "message": "Formula Copy" },
   "toastCopied":      { "message": "✓ LaTeX" }
 }
