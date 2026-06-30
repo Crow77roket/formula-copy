@@ -13,6 +13,10 @@ var whitelist = [];
 
 // ---- init ------------------------------------------------------------------
 
+// Localise static UI
+document.getElementById('section-title').textContent =
+  chrome.i18n.getMessage('popupEnabledSites');
+
 chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
   var tab = tabs[0];
   if (tab && tab.url) {
@@ -51,19 +55,15 @@ function render() {
   var status = document.getElementById('current-status');
 
   if (enabled) {
-    status.textContent = '已启用 — 公式复制生效中';
-    btn.textContent = '停用';
+    status.textContent = chrome.i18n.getMessage('popupEnabled');
+    btn.textContent = chrome.i18n.getMessage('popupDisable');
     btn.className = 'disable-btn';
-    btn.onclick = function () {
-      removeDomain(currentDomain);
-    };
+    btn.onclick = function () { removeDomain(currentDomain); };
   } else {
-    status.textContent = '未启用';
-    btn.textContent = '在此网站启用';
+    status.textContent = chrome.i18n.getMessage('popupDisabled');
+    btn.textContent = chrome.i18n.getMessage('popupEnable');
     btn.className = 'enable-btn';
-    btn.onclick = function () {
-      addDomain(currentDomain);
-    };
+    btn.onclick = function () { addDomain(currentDomain); };
   }
 
   // list
@@ -73,6 +73,7 @@ function render() {
 
   if (whitelist.length === 0) {
     empty.style.display = 'block';
+    empty.textContent = '—';
   } else {
     empty.style.display = 'none';
     whitelist.forEach(function (d) {
@@ -84,15 +85,14 @@ function render() {
 
       if (d === currentDomain) {
         var badge = document.createElement('span');
-        badge.className = 'badge';
-        badge.textContent = '(当前)';
         badge.style.cssText = 'font-size:10px;color:#10a37f;margin-left:4px;';
+        badge.textContent = chrome.i18n.getMessage('popupCurrent');
         li.appendChild(badge);
       }
 
       var removeBtn = document.createElement('button');
       removeBtn.textContent = '×';
-      removeBtn.title = '移除 ' + d;
+      removeBtn.title = chrome.i18n.getMessage('popupDisable') + ' ' + d;
       removeBtn.onclick = function () { removeDomain(d); };
       li.appendChild(removeBtn);
 
@@ -108,7 +108,6 @@ function addDomain(domain) {
   whitelist.push(domain);
   saveWhitelist();
 
-  // Re-register content scripts for the new set of domains
   chrome.runtime.sendMessage({ type: 'update-whitelist', whitelist: whitelist });
 
   render();

@@ -231,7 +231,7 @@
   function showToast(katexEl) {
     var rect = katexEl.getBoundingClientRect();
     var toast = document.createElement('div');
-    toast.textContent = '✓ LaTeX';
+    toast.textContent = chrome.i18n.getMessage('toastCopied') || '✓ LaTeX';
     Object.assign(toast.style, {
       position: 'fixed',
       zIndex: '2147483647',

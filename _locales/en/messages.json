@@ -1,0 +1,14 @@
+{
+  "appName":          { "message": "Formula Copy" },
+  "appDescription":   { "message": "Copy KaTeX-rendered math formulas as clean LaTeX source code" },
+  "actionTitle":      { "message": "Formula Copy" },
+
+  "popupEnabled":     { "message": "Enabled — formulas will be copied as LaTeX" },
+  "popupDisabled":    { "message": "Not enabled on this site" },
+  "popupEnable":      { "message": "Enable on this site" },
+  "popupDisable":     { "message": "Disable" },
+  "popupCurrent":     { "message": "(current)" },
+  "popupEnabledSites": { "message": "Enabled sites" },
+
+  "toastCopied":      { "message": "✓ LaTeX" }
+}
