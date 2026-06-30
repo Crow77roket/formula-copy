@@ -2,7 +2,7 @@
 
 Extensión de Chrome — copie fórmulas KaTeX como código fuente LaTeX limpio.
 
-[English](README.md)
+[English](../README.md)
 
 ## Instalación
 

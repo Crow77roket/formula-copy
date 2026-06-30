@@ -2,7 +2,7 @@
 
 Chrome 확장 — KaTeX로 렌더링된 수학 공식을 깨끗한 LaTeX 소스 코드로 복사합니다.
 
-[English](README.md)
+[English](../README.md)
 
 ## 설치
 

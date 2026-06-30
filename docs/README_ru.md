@@ -2,7 +2,7 @@
 
 Расширение Chrome — копируйте формулы KaTeX как чистый исходный код LaTeX.
 
-[English](README.md)
+[English](../README.md)
 
 ## Установка
 

@@ -2,7 +2,7 @@
 
 Chrome-Erweiterung — kopieren Sie KaTeX-Formeln als sauberen LaTeX-Quellcode.
 
-[English](README.md)
+[English](../README.md)
 
 ## Installation
 

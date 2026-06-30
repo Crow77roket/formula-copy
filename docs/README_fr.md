@@ -2,7 +2,7 @@
 
 Extension Chrome — copiez les formules KaTeX en code source LaTeX propre.
 
-[English](README.md)
+[English](../README.md)
 
 ## Installation
 

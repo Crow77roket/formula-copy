@@ -2,7 +2,7 @@
 
 Chrome 扩展 — 复制 KaTeX 渲染的数学公式，自动转换为干净的 LaTeX 源码。
 
-[English](README.md)
+[English](../README.md)
 
 ## 安装
 

@@ -2,7 +2,7 @@
 
 Chrome拡張機能 — KaTeXで描画された数式をクリーンなLaTeXソースコードとしてコピーします。
 
-[English](README.md)
+[English](../README.md)
 
 ## インストール
 

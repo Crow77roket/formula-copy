@@ -2,7 +2,7 @@
 
 Chrome extension — copy KaTeX-rendered math formulas as clean LaTeX source code.
 
-[中文](README_zh_CN.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Français](README_fr.md) · [Deutsch](README_de.md) · [Español](README_es.md) · [Русский](README_ru.md)
+[中文](docs/README_zh_CN.md) · [日本語](docs/README_ja.md) · [한국어](docs/README_ko.md) · [Français](docs/README_fr.md) · [Deutsch](docs/README_de.md) · [Español](docs/README_es.md) · [Русский](docs/README_ru.md)
 
 ## Install
 
