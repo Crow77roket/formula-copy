@@ -1,6 +1,6 @@
 {
   "appName":          { "message": "Formula Copy" },
-  "appDescription":   { "message": "元々はChatGPTからObsidianへ数式をコピーするために開発されました。KaTeX描画の数式を選択してCtrl+Cで、壊れたUnicodeではなくクリーンなLaTeXソースコードとしてコピーします。" },
+  "appDescription":   { "message": "KaTeX数式をLaTeXソースコードとしてコピー。元々はChatGPTからObsidianへのワークフロー用に開発。KaTeX使用サイトで動作します。" },
   "actionTitle":      { "message": "Formula Copy" },
   "toastCopied":      { "message": "✓ LaTeX" }
 }
