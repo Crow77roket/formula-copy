@@ -14,22 +14,34 @@
   var KATEX_CLASS = 'katex';
   var DISPLAY_CLASS = 'katex-display';
 
-  // ---- domain whitelist (cached from chrome.storage) ------------------------
+  // ---- persistent state (cached from chrome.storage) -------------------------
 
-  var enabledDomains = ['chatgpt.com'];  // default
+  var enabledDomains = ['chatgpt.com'];
+  var locale = 'en';
   var currentHost = location.hostname;
 
-  // Load persisted whitelist
-  chrome.storage.local.get('formula-copy-whitelist', function (data) {
-    if (data['formula-copy-whitelist']) {
-      enabledDomains = data['formula-copy-whitelist'];
-    }
-  });
+  var TOAST_TEXT = { en: '✓ LaTeX', zh_CN: '✓ LaTeX' };
 
-  // React to popup changes in real time
+  function loadState() {
+    chrome.storage.local.get(['formula-copy-whitelist', 'formula-copy-locale'], function (data) {
+      if (data['formula-copy-whitelist']) {
+        enabledDomains = data['formula-copy-whitelist'];
+      }
+      if (data['formula-copy-locale']) {
+        locale = data['formula-copy-locale'];
+      }
+    });
+  }
+  loadState();
+
   chrome.storage.onChanged.addListener(function (changes, area) {
-    if (area === 'local' && changes['formula-copy-whitelist']) {
-      enabledDomains = changes['formula-copy-whitelist'].newValue;
+    if (area === 'local') {
+      if (changes['formula-copy-whitelist']) {
+        enabledDomains = changes['formula-copy-whitelist'].newValue;
+      }
+      if (changes['formula-copy-locale']) {
+        locale = changes['formula-copy-locale'].newValue;
+      }
     }
   });
 
@@ -231,7 +243,7 @@
   function showToast(katexEl) {
     var rect = katexEl.getBoundingClientRect();
     var toast = document.createElement('div');
-    toast.textContent = chrome.i18n.getMessage('toastCopied') || '✓ LaTeX';
+    toast.textContent = TOAST_TEXT[locale] || TOAST_TEXT.en;
     Object.assign(toast.style, {
       position: 'fixed',
       zIndex: '2147483647',
