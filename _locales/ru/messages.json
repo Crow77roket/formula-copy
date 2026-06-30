@@ -1,6 +1,6 @@
 {
   "appName":          { "message": "Formula Copy" },
-  "appDescription":   { "message": "Копируйте формулы KaTeX как исходный код LaTeX" },
+  "appDescription":   { "message": "Создано для копирования формул из ChatGPT в Obsidian. Выделите, Ctrl+C — и получите чистый LaTeX вместо сломанного Unicode." },
   "actionTitle":      { "message": "Formula Copy" },
   "toastCopied":      { "message": "✓ LaTeX" }
 }

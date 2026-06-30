@@ -1,6 +1,6 @@
 {
   "appName":          { "message": "Formula Copy" },
-  "appDescription":   { "message": "复制 KaTeX 渲染的数学公式，自动转换为干净的 LaTeX 源码" },
+  "appDescription":   { "message": "复制 KaTeX 渲染的数学公式，自动转换为干净的 LaTeX 源码。专为 ChatGPT 复制公式到 Obsidian 设计——选中即复制，粘贴得到 LaTeX 而非断裂的 Unicode。" },
   "actionTitle":      { "message": "Formula Copy" },
 
   "popupEnabled":     { "message": "已启用 — 公式复制生效中" },
