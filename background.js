@@ -9,15 +9,15 @@
  */
 
 var ACTIVE_ICON = {
-  16:  'icons/icon-active.svg',
-  48:  'icons/icon-active.svg',
-  128: 'icons/icon-active.svg'
+  16:  'icons/icon-active-16.png',
+  48:  'icons/icon-active-48.png',
+  128: 'icons/icon-active-128.png'
 };
 
 var INACTIVE_ICON = {
-  16:  'icons/icon-inactive.svg',
-  48:  'icons/icon-inactive.svg',
-  128: 'icons/icon-inactive.svg'
+  16:  'icons/icon-inactive-16.png',
+  48:  'icons/icon-inactive-48.png',
+  128: 'icons/icon-inactive-128.png'
 };
 
 function setIcon(tabId, url) {
