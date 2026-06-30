@@ -1,0 +1,19 @@
+Copie fórmulas matemáticas KaTeX como código fuente LaTeX limpio.
+
+¿Cansado de copiar una fórmula de ChatGPT y obtener Unicode roto como "∫₀¹ x² dx = ⅓" en lugar de "\int_0^1 x^2 \, dx = \frac{1}{3}"? Formula Copy intercepta el evento de copia y reemplaza el portapapeles con el código LaTeX original.
+
+Funcionalidades
+• Activación con un clic en cualquier sitio web — haga clic en el icono para alternar
+• Fórmulas en línea envueltas en $...$, fórmulas de bloque en $$...$$
+• Estructura de tablas HTML preservada — al pegar en Obsidian se convierten en tablas Markdown
+• Funciona en ChatGPT, Claude y cualquier sitio que use KaTeX o MathJax
+• El texto sin fórmulas permanece sin cambios — cero interferencia
+• Ligero, sin seguimiento, sin recolección de datos
+
+Uso
+1. Abra una página con fórmulas KaTeX (ej. chatgpt.com)
+2. Haga clic en el icono de Formula Copy — se vuelve verde cuando está activo
+3. Seleccione texto con fórmulas y pulse Ctrl+C
+4. Pegue en Obsidian, Typora, Overleaf o cualquier editor LaTeX/Markdown
+
+Originalmente diseñado para el flujo de trabajo ChatGPT a Obsidian, pero funciona donde sea que haya KaTeX.
