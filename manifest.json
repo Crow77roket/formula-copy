@@ -9,6 +9,17 @@
   "host_permissions": [
     "https://chatgpt.com/*"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-inactive.svg",
+      "48": "icons/icon-inactive.svg",
+      "128": "icons/icon-inactive.svg"
+    },
+    "default_title": "Formula Copy"
+  },
   "content_scripts": [
     {
       "matches": ["https://chatgpt.com/*"],
@@ -17,8 +28,8 @@
     }
   ],
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon-active.svg",
+    "48": "icons/icon-active.svg",
+    "128": "icons/icon-active.svg"
   }
 }
