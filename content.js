@@ -1,7 +1,7 @@
 /**
  * Formula Copy — Chrome Extension
- * Intercepts copy events on chatgpt.com and converts KaTeX-rendered
- * math formulas into clean LaTeX source code ($…$ / $$…$$).
+ * Intercepts copy events on whitelisted domains and converts KaTeX-
+ * rendered math formulas into clean LaTeX source code ($…$ / $$…$$).
  *
  * Writes BOTH text/html and text/plain to the clipboard so that
  * consumers like Obsidian can still convert HTML tables to Markdown
@@ -14,6 +14,31 @@
   var KATEX_CLASS = 'katex';
   var DISPLAY_CLASS = 'katex-display';
 
+  // ---- domain whitelist (cached from chrome.storage) ------------------------
+
+  var enabledDomains = ['chatgpt.com'];  // default
+  var currentHost = location.hostname;
+
+  // Load persisted whitelist
+  chrome.storage.local.get('formula-copy-whitelist', function (data) {
+    if (data['formula-copy-whitelist']) {
+      enabledDomains = data['formula-copy-whitelist'];
+    }
+  });
+
+  // React to popup changes in real time
+  chrome.storage.onChanged.addListener(function (changes, area) {
+    if (area === 'local' && changes['formula-copy-whitelist']) {
+      enabledDomains = changes['formula-copy-whitelist'].newValue;
+    }
+  });
+
+  function isActive() {
+    return enabledDomains.indexOf(currentHost) !== -1;
+  }
+
+  // ---- event binding --------------------------------------------------------
+
   document.addEventListener('copy', onCopy, { capture: true });
 
   // ---------------------------------------------------------------------------
@@ -21,6 +46,8 @@
   // ---------------------------------------------------------------------------
 
   function onCopy(event) {
+    if (!isActive()) return; // domain not in whitelist — native copy
+
     var selection = window.getSelection();
     if (!selection || selection.isCollapsed) return;
 
