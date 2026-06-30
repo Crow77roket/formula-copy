@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "description": "Copy KaTeX-rendered math formulas from ChatGPT as clean LaTeX source code",
   "permissions": [
-    "clipboardWrite"
+    "clipboardWrite",
+    "tabs"
   ],
   "host_permissions": [
     "https://chatgpt.com/*"

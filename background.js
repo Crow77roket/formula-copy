@@ -1,11 +1,6 @@
 /**
- * Toggles the extension icon between active (green) and inactive (grey)
- * depending on whether the current tab is on chatgpt.com.
- *
- * Avoids the "tabs" permission: we rely on host_permissions for
- * chatgpt.com to populate changeInfo.url when navigating to/within
- * ChatGPT, and default to inactive when the URL is absent (meaning
- * the page is outside our host permission scope).
+ * Toggle the extension icon between active (green) and inactive (grey)
+ * based on whether the current tab is on chatgpt.com.
  */
 
 var ACTIVE_ICON = {
@@ -20,20 +15,24 @@ var INACTIVE_ICON = {
   128: 'icons/icon-inactive-128.png'
 };
 
+var CHATGPT = /^https?:\/\/chatgpt\.com(\/|$)/;
+
 function setIcon(tabId, url) {
-  var isChatGPT = /^https?:\/\/chatgpt\.com(\/|$)/.test(url || '');
   chrome.action.setIcon({
     tabId: tabId,
-    path: isChatGPT ? ACTIVE_ICON : INACTIVE_ICON
+    path: CHATGPT.test(url || '') ? ACTIVE_ICON : INACTIVE_ICON
   });
 }
 
+// Tab navigations / reloads / SPA pushState
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-  // changeInfo.url is only present when we have host permissions for it.
-  // If absent, the new URL is outside chatgpt.com → inactive.
-  if (changeInfo.url) {
-    setIcon(tabId, changeInfo.url);
-  } else if (changeInfo.status === 'complete') {
-    setIcon(tabId, ''); // no URL → default to inactive
-  }
+  if (tab.url) setIcon(tabId, tab.url);
+});
+
+// User switches to a different tab
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  chrome.tabs.get(activeInfo.tabId, function (tab) {
+    if (chrome.runtime.lastError) return;
+    if (tab && tab.url) setIcon(tab.id, tab.url);
+  });
 });
