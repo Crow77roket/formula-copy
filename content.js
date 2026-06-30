@@ -20,7 +20,10 @@
   var locale = 'en';
   var currentHost = location.hostname;
 
-  var TOAST_TEXT = { en: '✓ LaTeX', zh_CN: '✓ LaTeX' };
+  var TOAST_TEXT = {
+    en: '✓ LaTeX', zh_CN: '✓ LaTeX', ja: '✓ LaTeX', ko: '✓ LaTeX',
+    fr: '✓ LaTeX', de: '✓ LaTeX', es: '✓ LaTeX', ru: '✓ LaTeX'
+  };
 
   function loadState() {
     chrome.storage.local.get(['formula-copy-whitelist', 'formula-copy-locale'], function (data) {

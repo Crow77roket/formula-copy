@@ -1,0 +1,6 @@
+{
+  "appName":          { "message": "Formula Copy" },
+  "appDescription":   { "message": "Копируйте формулы KaTeX как исходный код LaTeX" },
+  "actionTitle":      { "message": "Formula Copy" },
+  "toastCopied":      { "message": "✓ LaTeX" }
+}

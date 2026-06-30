@@ -10,6 +10,9 @@ var currentDomain = null;
 var whitelist = [];
 var locale = 'en';
 
+var LOCALES = ['en', 'zh_CN', 'ja', 'ko', 'fr', 'de', 'es', 'ru'];
+var LOCALE_LABELS = { en: 'EN', zh_CN: '中', ja: '日', ko: '한', fr: 'FR', de: 'DE', es: 'ES', ru: 'RU' };
+
 // ---- inline i18n messages --------------------------------------------------
 
 var MSG = {
@@ -32,6 +35,66 @@ var MSG = {
     popupEnabledSites: '已启用的网站',
     popupEmpty:        '—',
     popupUnknown:      '（未知）'
+  },
+  ja: {
+    popupEnabled:      '有効 — LaTeX としてコピーされます',
+    popupDisabled:     'このサイトでは無効',
+    popupEnable:       'このサイトで有効にする',
+    popupDisable:      '無効にする',
+    popupCurrent:      '（現在）',
+    popupEnabledSites: '有効なサイト',
+    popupEmpty:        '—',
+    popupUnknown:      '（不明）'
+  },
+  ko: {
+    popupEnabled:      '활성화됨 — LaTeX로 복사됩니다',
+    popupDisabled:     '이 사이트에서 비활성화됨',
+    popupEnable:       '이 사이트에서 활성화',
+    popupDisable:      '비활성화',
+    popupCurrent:      '(현재)',
+    popupEnabledSites: '활성화된 사이트',
+    popupEmpty:        '—',
+    popupUnknown:      '(알 수 없음)'
+  },
+  fr: {
+    popupEnabled:      'Activé — formules copiées en LaTeX',
+    popupDisabled:     'Non activé sur ce site',
+    popupEnable:       'Activer sur ce site',
+    popupDisable:      'Désactiver',
+    popupCurrent:      '(actuel)',
+    popupEnabledSites: 'Sites activés',
+    popupEmpty:        '—',
+    popupUnknown:      '(inconnu)'
+  },
+  de: {
+    popupEnabled:      'Aktiv — Formeln werden als LaTeX kopiert',
+    popupDisabled:     'Auf dieser Seite nicht aktiv',
+    popupEnable:       'Auf dieser Seite aktivieren',
+    popupDisable:      'Deaktivieren',
+    popupCurrent:      '(aktuell)',
+    popupEnabledSites: 'Aktivierte Seiten',
+    popupEmpty:        '—',
+    popupUnknown:      '(unbekannt)'
+  },
+  es: {
+    popupEnabled:      'Activado — fórmulas copiadas como LaTeX',
+    popupDisabled:     'No activado en este sitio',
+    popupEnable:       'Activar en este sitio',
+    popupDisable:      'Desactivar',
+    popupCurrent:      '(actual)',
+    popupEnabledSites: 'Sitios activados',
+    popupEmpty:        '—',
+    popupUnknown:      '(desconocido)'
+  },
+  ru: {
+    popupEnabled:      'Включено — формулы копируются как LaTeX',
+    popupDisabled:     'Не включено на этом сайте',
+    popupEnable:       'Включить на этом сайте',
+    popupDisable:      'Отключить',
+    popupCurrent:      '(текущий)',
+    popupEnabledSites: 'Включённые сайты',
+    popupEmpty:        '—',
+    popupUnknown:      '(неизвестно)'
   }
 };
 
@@ -55,7 +118,7 @@ function loadState() {
   chrome.storage.local.get([WHITELIST_KEY, LOCALE_KEY], function (data) {
     whitelist = data[WHITELIST_KEY] || DEFAULT_WHITELIST.slice();
     locale    = data[LOCALE_KEY] || 'en';
-    document.getElementById('lang-btn').textContent = locale === 'zh_CN' ? '中' : 'EN';
+    document.getElementById('lang-btn').textContent = LOCALE_LABELS[locale] || locale;
     document.getElementById('section-title').textContent = t('popupEnabledSites');
     render();
   });
@@ -64,9 +127,10 @@ function loadState() {
 // ---- locale toggle ---------------------------------------------------------
 
 function toggleLocale() {
-  locale = locale === 'zh_CN' ? 'en' : 'zh_CN';
+  var idx = LOCALES.indexOf(locale);
+  locale = LOCALES[(idx + 1) % LOCALES.length];
   chrome.storage.local.set({ [LOCALE_KEY]: locale });
-  document.getElementById('lang-btn').textContent = locale === 'zh_CN' ? '中' : 'EN';
+  document.getElementById('lang-btn').textContent = LOCALE_LABELS[locale] || locale;
   document.getElementById('section-title').textContent = t('popupEnabledSites');
   render();
 }
