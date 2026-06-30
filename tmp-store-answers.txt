@@ -1,0 +1,22 @@
+=== 1. Single Purpose ===
+The sole purpose of this extension is to intercept copy events on user-enabled websites and replace KaTeX-rendered math formulas with their original LaTeX source code in the clipboard. No other functionality.
+
+=== 2. Remote Code ===
+This extension does not use any remote code. All JavaScript (background.js, content.js, popup.js) is bundled within the extension. No external CDN, no remote script injection, no eval().
+
+=== 3. Host Permissions (<all_urls>) ===
+Users can manually enable the extension on any website, not just chatgpt.com, by clicking the extension icon. The host permission allows the content script to be injected on user-enabled domains so copy interception works. The extension does not read or modify any data on websites the user has not explicitly enabled.
+
+=== 4. clipboardWrite Permission ===
+Required for core functionality. When the user copies text containing math formulas, the extension writes the converted LaTeX source code to the system clipboard, replacing broken Unicode/HTML output. Without this permission, formula replacement is impossible.
+
+=== 5. storage Permission ===
+Used to store two user preferences locally: (1) the domain whitelist of sites the user has manually enabled, and (2) the UI language preference. All data is stored via chrome.storage.local only, never uploaded, never synced, never leaves the device.
+
+=== 6. tabs Permission ===
+Used to update the extension icon (green = enabled on current site, grey = not enabled) when the user switches tabs. The extension only reads the tab URL to determine icon state. No browsing history is read, stored, or recorded.
+
+=== 7. Data Collection ===
+All data type checkboxes: UNCHECKED (none selected).
+Bottom three confirmations: ALL CHECKED.
+Privacy policy URL: https://crow77roket.github.io/formula-copy/privacy.html

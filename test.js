@@ -46,8 +46,8 @@ const TABLE_WITH_FORMULAS = `
 <table>
   <thead>
     <tr>
-      <th>${INLINE_FORMULA} 所在区间</th>
-      <th>恢复公式</th>
+      <th>${INLINE_FORMULA} range</th>
+      <th>Recovery formula</th>
     </tr>
   </thead>
   <tbody>
@@ -65,14 +65,14 @@ const TABLE_WITH_FORMULAS = `
 /** A paragraph mixing Chinese text, bold, and inline formulas */
 const MIXED_PARAGRAPH = `
 <p>
-  所以真正需要单调的是 ${INLINE_FORMULA}，<strong>不是</strong> ${INLINE_FORMULA}。
-  看 ${INLINE_FORMULA} 的范围，设
+  The function we need is ${INLINE_FORMULA}, <strong>not</strong> ${INLINE_FORMULA}.
+  Consider the range of ${INLINE_FORMULA}, let
 </p>
 ${DISPLAY_FORMULA}
-<p>因此我们可以推导出最终结果。</p>`;
+<p>Therefore we can derive the final result.</p>`;
 
 /** A paragraph with only plain text (no formulas) */
-const PLAIN_PARAGRAPH = `<p>这是一段<strong>普通</strong>文字，没有任何公式。</p>`;
+const PLAIN_PARAGRAPH = `<p>This is a <strong>plain</strong> paragraph with no formulas.</p>`;
 
 // ---------------------------------------------------------------------------
 // Test document builder
@@ -313,7 +313,7 @@ test('mixed paragraph: inline formulas wrapped, text preserved', () => {
   assert(result, 'no output');
   assertContains(result.text, '$\\theta$', 'should contain inline math');
   assertContains(result.text, '$$\n\\sin2x=t^2-1\n$$', 'should contain display math');
-  assertContains(result.text, '所以真正需要单调的是', 'should preserve Chinese text');
+  assertContains(result.text, 'The function we need is', 'should preserve surrounding text');
 });
 
 test('plain text paragraph → not intercepted (returns null)', () => {
