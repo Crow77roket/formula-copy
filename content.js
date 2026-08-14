@@ -174,7 +174,13 @@
       span.textContent = wrapped;
 
       var el = clones[i];
-      el.parentNode.replaceChild(span, el);
+      // Newer ChatGPT markup wraps each .katex in
+      // <span role="math" data-math-source="…">. Replace that outermost
+      // wrapper instead so its attributes don't leak into the copied HTML.
+      var target = el.closest('[data-math-source]') ||
+                   el.closest('[role="math"]') ||
+                   el;
+      target.parentNode.replaceChild(span, target);
     }
   }
 
@@ -196,6 +202,17 @@
     if (sem) {
       ann = sem.querySelector('annotation');
       if (ann && ann.textContent) return ann.textContent.trim();
+    }
+
+    // Newer ChatGPT markup (2026): KaTeX's MathML/annotation is gone. The
+    // LaTeX source now lives on a wrapper around .katex:
+    //   <span role="math" data-math-source="\frac{dy}{dx}">…<span class="katex">…
+    // `data-math-source` is authoritative; `aria-label` is the fallback.
+    var wrapper = katexEl.closest('[role="math"]');
+    if (wrapper) {
+      var src = wrapper.getAttribute('data-math-source') ||
+                wrapper.getAttribute('aria-label');
+      if (src) return src.trim();
     }
 
     return null;

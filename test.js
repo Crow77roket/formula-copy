@@ -41,6 +41,31 @@ const INLINE_FORMULA = `
   </span>
 </span>`;
 
+/**
+ * ChatGPT's newer markup (2026): no .katex-mathml / <annotation>. LaTeX is
+ * on a wrapper <span role="math" data-math-source="…"> around .katex.
+ */
+const NEW_INLINE_FORMULA = `
+<span data-start="12" data-end="19" role="math" aria-label="y=0" data-math-source="y=0" data-client-katex-layout="">
+  <span class="katex">
+    <span class="katex-html" aria-hidden="true">
+      <span class="base"><span class="mord mathnormal">y</span><span class="mrel">=</span><span class="mord">0</span></span>
+    </span>
+  </span>
+</span>`;
+
+/** Display formula in the newer markup (block math, style="display: block;") */
+const NEW_DISPLAY_FORMULA = `
+<span data-start="295" data-end="339" role="math" aria-label="\\frac{dy}{dx}=y" data-math-source="\\frac{dy}{dx}=y" data-client-katex-layout="" style="display: block;">
+  <span class="katex-display">
+    <span class="katex">
+      <span class="katex-html" aria-hidden="true">
+        <span class="base"><span class="mord"><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist">d</span></span></span></span></span></span>
+      </span>
+    </span>
+  </span>
+</span>`;
+
 /** A table with KaTeX formulas in header and body cells */
 const TABLE_WITH_FORMULAS = `
 <table>
@@ -112,6 +137,14 @@ function makeHelpers(doc) {
       const a = sem.querySelector('annotation');
       if (a && a.textContent) return a.textContent.trim();
     }
+
+    // Newer ChatGPT markup: LaTeX on a wrapper <span role="math" data-math-source="…">
+    const wrapper = el.closest('[role="math"]');
+    if (wrapper) {
+      const src = wrapper.getAttribute('data-math-source') ||
+                  wrapper.getAttribute('aria-label');
+      if (src) return src.trim();
+    }
     return null;
   }
 
@@ -142,7 +175,11 @@ function makeHelpers(doc) {
         : '$' + data.latex + '$';
       const span = doc.createElement('span');
       span.textContent = wrapped;
-      clones[i].parentNode.replaceChild(span, clones[i]);
+      const el = clones[i];
+      const target = el.closest('[data-math-source]') ||
+                     el.closest('[role="math"]') ||
+                     el;
+      target.parentNode.replaceChild(span, target);
     }
   }
 
@@ -421,6 +458,58 @@ test('two display formulas both wrapped in $$...$$', () => {
   // Count $$ occurrences: each display formula = 2 $$ (open + close) = 4 total
   const count = (result.text.match(/\$\$/g) || []).length;
   assert(count === 4, 'expected 4 $$, got ' + count);
+});
+
+// ---- 9. Newer ChatGPT markup (data-math-source wrapper) ---------------------
+
+test('extract LaTeX from new markup (inline, data-math-source)', () => {
+  const { doc } = buildDoc(NEW_INLINE_FORMULA);
+  const { extractLatex } = makeHelpers(doc);
+  assert(extractLatex(doc.querySelector('.katex')) === 'y=0');
+});
+
+test('extract LaTeX from new markup (display, data-math-source)', () => {
+  const { doc } = buildDoc(NEW_DISPLAY_FORMULA);
+  const { extractLatex } = makeHelpers(doc);
+  assert(extractLatex(doc.querySelector('.katex')) === '\\frac{dy}{dx}=y');
+});
+
+test('new markup single inline formula → $y=0$', () => {
+  const { doc, XMLSerializer } = buildDoc(NEW_INLINE_FORMULA);
+  const katex = doc.querySelector('.katex');
+  const range = doc.createRange();
+  range.selectNodeContents(katex);
+  const result = simulateCopy(doc, XMLSerializer, range);
+  assert(result, 'no output');
+  assert(result.text === '$y=0$');
+});
+
+test('new markup single display formula → $$...$$', () => {
+  const { doc, XMLSerializer } = buildDoc(NEW_DISPLAY_FORMULA);
+  const katex = doc.querySelector('.katex');
+  const range = doc.createRange();
+  range.selectNodeContents(katex);
+  const result = simulateCopy(doc, XMLSerializer, range);
+  assert(result, 'no output');
+  assert(result.text.startsWith('$$'), 'should start with $$');
+  assertContains(result.text, '\\frac{dy}{dx}=y');
+});
+
+test('new markup mixed selection: LaTeX extracted, wrapper stripped', () => {
+  const html = '<p>The solution is ' + NEW_INLINE_FORMULA + ', and generally</p>' +
+    NEW_DISPLAY_FORMULA + '<p>for all x.</p>';
+  const { doc, XMLSerializer } = buildDoc(html);
+  const range = doc.createRange();
+  range.selectNodeContents(doc.body);
+  const result = simulateCopy(doc, XMLSerializer, range);
+  assert(result, 'no output');
+  assertContains(result.text, '$y=0$', 'inline LaTeX missing');
+  assertContains(result.text, '$$\n\\frac{dy}{dx}=y\n$$', 'display LaTeX missing');
+  assertContains(result.text, 'The solution is', 'surrounding text missing');
+  // wrapper attributes and katex internals must not leak into HTML
+  assertNotContains(result.html, 'data-math-source', 'wrapper data-math-source leaked');
+  assertNotContains(result.html, 'role="math"', 'wrapper role="math" leaked');
+  assertNotContains(result.html, 'katex-html', 'katex internals leaked');
 });
 
 // ---------------------------------------------------------------------------
