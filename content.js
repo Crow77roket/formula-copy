@@ -1,7 +1,7 @@
 /**
  * Formula Copy — Chrome Extension
  * Intercepts copy events on whitelisted domains and converts KaTeX-
- * rendered math formulas into clean LaTeX source code ($…$ / $$…$$).
+ * rendered math formulas into clean LaTeX with user-selected delimiters.
  *
  * Writes BOTH text/html and text/plain to the clipboard so that
  * consumers like Obsidian can still convert HTML tables to Markdown
@@ -18,6 +18,8 @@
 
   var enabledDomains = ['chatgpt.com'];
   var locale = 'en';
+  var DELIMITER_KEY = 'formula-copy-delimiter-style';
+  var delimiterStyle = 'dollar';
   var currentHost = location.hostname;
 
   var TOAST_TEXT = {
@@ -26,7 +28,8 @@
   };
 
   function loadState() {
-    chrome.storage.local.get(['formula-copy-whitelist', 'formula-copy-locale'], function (data) {
+    chrome.storage.local.get(['formula-copy-whitelist', 'formula-copy-locale', DELIMITER_KEY], function (data) {
+      delimiterStyle = data[DELIMITER_KEY] === 'brackets' ? 'brackets' : 'dollar';
       if (data['formula-copy-whitelist']) {
         enabledDomains = data['formula-copy-whitelist'];
       }
@@ -39,6 +42,9 @@
 
   chrome.storage.onChanged.addListener(function (changes, area) {
     if (area === 'local') {
+      if (changes[DELIMITER_KEY]) {
+        delimiterStyle = changes[DELIMITER_KEY].newValue === 'brackets' ? 'brackets' : 'dollar';
+      }
       if (changes['formula-copy-whitelist']) {
         enabledDomains = changes['formula-copy-whitelist'].newValue;
       }
@@ -75,7 +81,7 @@
       var latex = extractLatex(singleKatex);
       if (latex) {
         var block = !!singleKatex.closest('.' + DISPLAY_CLASS);
-        var output = block ? '$$\n' + latex + '\n$$' : '$' + latex + '$';
+        var output = wrapLatex(latex, block);
 
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -151,9 +157,16 @@
   // Mixed-text builder (formulas replaced; tables left as HTML)
   // ---------------------------------------------------------------------------
 
+  function wrapLatex(latex, display) {
+    if (delimiterStyle === 'brackets') {
+      return display ? '\\[\n' + latex + '\n\\]' : '\\(' + latex + '\\)';
+    }
+    return display ? '$$\n' + latex + '\n$$' : '$' + latex + '$';
+  }
+
   /**
    * Walk `fragment`, replace each .katex subtree with a <span> containing
-   * LaTeX ($…$ / $$…$$).  The <span> wrapper keeps the HTML structure
+   * LaTeX with the selected delimiters. The <span> wrapper keeps the HTML structure
    * valid so that XMLSerializer produces clean output.
    */
   function buildMixedText(fragment, latexData) {
@@ -163,9 +176,8 @@
       var data = latexData[i];
       if (!data || !data.latex) continue;
 
-      var wrapped = data.display
-        ? '\n$$\n' + data.latex + '\n$$\n'
-        : '$' + data.latex + '$';
+      var wrapped = wrapLatex(data.latex, data.display);
+      if (data.display) wrapped = '\n' + wrapped + '\n';
 
       // Replace the .katex element with a plain span so the HTML stays
       // clean and the LaTeX delimiters are preserved in both HTML and
