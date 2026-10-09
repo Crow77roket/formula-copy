@@ -15,6 +15,11 @@ Extension Chrome — copiez les formules KaTeX en code source LaTeX propre.
 - Sélectionnez du texte avec des formules, **Ctrl+C**, collez pour obtenir du LaTeX (`$…$` / `$$…$$`)
 - Cliquez sur l'icône pour activer/désactiver sur n'importe quel site
 - Icône verte = actif sur le site actuel, grise = inactif
+- Cliquez sur le petit bouton à côté du sélecteur de langue, en haut de la fenêtre,
+  pour passer de `$...$` / `$$...$$` (par défaut, bouton `$`) à `\(...\)` / `\[...\]`
+  (bouton `\(\)`) et inversement. Survolez le bouton pour voir les exemples complets.
+  Votre choix est enregistré automatiquement en local et s'applique immédiatement
+  à tous les sites activés, sans recharger la page.
 
 ## Fonctionnalités
 

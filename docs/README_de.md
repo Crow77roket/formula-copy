@@ -15,6 +15,12 @@ Chrome-Erweiterung — kopieren Sie KaTeX-Formeln als sauberen LaTeX-Quellcode.
 - Text mit Formeln auswählen, **Ctrl+C**, einfügen ergibt LaTeX (`$…$` / `$$…$$`)
 - Klicken Sie auf das Symbol, um die Erweiterung auf beliebigen Seiten zu aktivieren
 - Grünes Symbol = aktiv, graues Symbol = inaktiv
+- Klicken Sie oben im Popup auf die kleine Schaltfläche neben der Sprachauswahl,
+  um zwischen `$...$` / `$$...$$` (Standard, Schaltfläche zeigt `$`) und
+  `\(...\)` / `\[...\]` (Schaltfläche zeigt `\(\)`) zu wechseln. Bewegen Sie den
+  Mauszeiger darüber, um vollständige Beispiele der Formelbegrenzer zu sehen.
+  Ihre Auswahl wird automatisch lokal gespeichert und gilt sofort für alle
+  aktivierten Websites, ohne die Seite neu zu laden.
 
 ## Funktionen
 

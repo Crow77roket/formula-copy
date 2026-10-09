@@ -15,6 +15,12 @@ Extensión de Chrome — copie fórmulas KaTeX como código fuente LaTeX limpio.
 - Seleccione texto con fórmulas, **Ctrl+C**, pegue para obtener LaTeX (`$…$` / `$$…$$`)
 - Haga clic en el icono para activar/desactivar en cualquier sitio
 - Icono verde = activo en el sitio actual, gris = inactivo
+- Haga clic en el pequeño botón junto al selector de idioma, en la parte superior
+  de la ventana, para alternar entre `$...$` / `$$...$$` (predeterminado, botón `$`)
+  y `\(...\)` / `\[...\]` (botón `\(\)`). Pase el cursor sobre el botón para ver
+  los ejemplos completos de los delimitadores. Su elección se guarda automáticamente
+  de forma local y se aplica de inmediato a todos los sitios activados,
+  sin necesidad de recargar la página.
 
 ## Funcionalidades
 
