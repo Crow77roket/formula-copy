@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-10-09
+
+### Added
+
+- Math delimiter button next to the popup's language button: click to switch
+  between dollar signs (`$...$` / `$$...$$`)
+  or parentheses and brackets (`\(...\)` / `\[...\]`). Dollar signs remain the
+  default. The saved preference updates open pages immediately and applies to
+  single formulas, mixed selections, and both clipboard formats.
+- Localized delimiter button tooltips in all eight supported languages,
+  preserving the popup's compact layout without extra footer messages.
+
+### Changed
+
+- Copy integration tests now run the actual content script instead of a
+  duplicated copy implementation. Added 16 regression tests for delimiter
+  output, live preference changes, defaults, and popup settings.
+
 ## [1.0.1] - 2026-08-14
 
 ### Fixed

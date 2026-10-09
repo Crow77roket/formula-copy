@@ -1,6 +1,6 @@
 {
   "name": "formula-copy",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Chrome extension — copy KaTeX math as clean LaTeX from ChatGPT",
   "private": true,
   "scripts": {

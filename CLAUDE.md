@@ -20,7 +20,7 @@ math from ChatGPT into note-taking apps like Obsidian.
 | `background.js` | Icon state (green/grey), whitelist sync, tab URL detection |
 | `popup.html / .js` | Domain whitelist manager with language switcher |
 | `manifest.json` | Permissions, content scripts, action config |
-| `test.js` | 15 integration tests with jsdom + inline mock DOM fixtures |
+| `test.js` | 36 tests with jsdom + inline mock DOM fixtures |
 | `scripts/generate-icons.js` | PNG icon generation from SVG template via sharp |
 
 ## Architecture decisions
@@ -59,7 +59,7 @@ npm install
 npm test
 ```
 
-15 self-contained tests using jsdom with inline mock KaTeX DOM fixtures.
+36 self-contained tests using jsdom with inline mock KaTeX DOM fixtures.
 No external files required. Covers: single formula, mixed text, table
 preservation, bold formatting, selection edge cases.
 
@@ -70,7 +70,7 @@ git checkout release
 git merge main --no-edit
 rm -rf node_modules/ package.json package-lock.json test.js scripts/ .gitignore docs/ tmp-*
 git add -A && git commit -m "release: sync main"
-git archive -o ../formula-copy-v1.0.0.zip HEAD
+git archive -o ../formula-copy-v1.0.2.zip HEAD
 ```
 
 ## Naming conventions

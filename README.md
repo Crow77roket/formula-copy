@@ -17,10 +17,16 @@ Chrome extension — copy KaTeX-rendered math formulas as clean LaTeX source cod
 - Click the toolbar icon to **enable / disable** on any website
 - Default whitelist: `chatgpt.com`, add others as needed
 - Icon: **green** = active on current site, **grey** = inactive
+- Click the small delimiter button next to the language button to switch between
+  `$...$` / `$$...$$` (default, shown as `$`) and `\(...\)` / `\[...\]`
+  (shown as `\(\)`). Hover for the full delimiter examples. The preference is saved locally, applies to all
+  enabled sites, and takes effect immediately without refreshing the page.
 
 ## Features
 
 - Single formula → `$\theta$` or `$$\int_0^1$$`
+- Optional parentheses/brackets → `\(\theta\)` or `\[ ... \]`; block formulas
+  keep their opening and closing delimiters on separate lines in either style
 - Mixed text + formulas → formulas replaced, plain text preserved
 - HTML tables → dual MIME clipboard (`text/html` + `text/plain`), paste into Obsidian yields Markdown tables
 - Plain text without formulas → native copy, zero interference

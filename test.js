@@ -6,6 +6,11 @@
  */
 
 const { JSDOM } = require('jsdom');
+const fs = require('node:fs');
+const path = require('node:path');
+const CONTENT_SCRIPT = fs.readFileSync(path.join(__dirname, 'content.js'), 'utf8');
+const POPUP_SCRIPT = fs.readFileSync(path.join(__dirname, 'popup.js'), 'utf8');
+const POPUP_HTML = fs.readFileSync(path.join(__dirname, 'popup.html'), 'utf8');
 
 // ---------------------------------------------------------------------------
 // Mock fixtures — miniature ChatGPT DOM snippets
@@ -106,7 +111,7 @@ const PLAIN_PARAGRAPH = `<p>This is a <strong>plain</strong> paragraph with no f
 function buildDoc(bodyHtml) {
   const dom = new JSDOM(
     '<!DOCTYPE html><html><body>' + bodyHtml + '</body></html>',
-    { runScripts: 'outside-only' }
+    { runScripts: 'outside-only', url: 'https://chatgpt.com/' }
   );
   return {
     doc: dom.window.document,
@@ -115,12 +120,11 @@ function buildDoc(bodyHtml) {
 }
 
 // ---------------------------------------------------------------------------
-// Replicated extension helpers (same logic as content.js)
+// Isolated extraction/range helper checks; copy tests run the actual script.
 // ---------------------------------------------------------------------------
 
 function makeHelpers(doc) {
   const KATEX_CLASS = 'katex';
-  const DISPLAY_CLASS = 'katex-display';
 
   function extractLatex(el) {
     const ann = el.querySelector('annotation[encoding="application/x-tex"]');
@@ -160,79 +164,56 @@ function makeHelpers(doc) {
     return result;
   }
 
-  function findKatexAncestor(node) {
-    const el = node.nodeType === 3 ? node.parentElement : node;
-    return el ? el.closest('.' + KATEX_CLASS) : null;
-  }
-
-  function buildMixedText(fragment, latexData) {
-    const clones = fragment.querySelectorAll('.' + KATEX_CLASS);
-    for (let i = clones.length - 1; i >= 0; i--) {
-      const data = latexData[i];
-      if (!data || !data.latex) continue;
-      const wrapped = data.display
-        ? '\n$$\n' + data.latex + '\n$$\n'
-        : '$' + data.latex + '$';
-      const span = doc.createElement('span');
-      span.textContent = wrapped;
-      const el = clones[i];
-      const target = el.closest('[data-math-source]') ||
-                     el.closest('[role="math"]') ||
-                     el;
-      target.parentNode.replaceChild(span, target);
-    }
-  }
-
-  return { extractLatex, findKatexInRange, findKatexAncestor, buildMixedText };
+  return { extractLatex, findKatexInRange };
 }
 
 // ---------------------------------------------------------------------------
-// simulateCopy — mirrors content.js onCopy logic
+// Run the real content script with Chrome storage and clipboard mocks.
 // ---------------------------------------------------------------------------
 
-function simulateCopy(doc, XMLSerializer, range) {
-  const { extractLatex, findKatexInRange, findKatexAncestor, buildMixedText } = makeHelpers(doc);
-  const DISPLAY_CLASS = 'katex-display';
+const contentHarnesses = new WeakMap();
+const DELIMITER_KEY = 'formula-copy-delimiter-style';
 
-  // Case A: selection entirely within a single .katex
-  const singleKatex = findKatexAncestor(range.commonAncestorContainer);
-  if (singleKatex && range.intersectsNode(singleKatex)) {
-    const startEl = range.startContainer.nodeType === 3
-      ? range.startContainer.parentElement : range.startContainer;
-    const endEl = range.endContainer.nodeType === 3
-      ? range.endContainer.parentElement : range.endContainer;
-    const KATEX_CLASS = 'katex';
-    if (startEl && endEl &&
-        startEl.closest('.' + KATEX_CLASS) === singleKatex &&
-        endEl.closest('.' + KATEX_CLASS) === singleKatex) {
-      const latex = extractLatex(singleKatex);
-      if (latex) {
-        const block = !!singleKatex.closest('.' + DISPLAY_CLASS);
-        const text = block ? '$$\n' + latex + '\n$$' : '$' + latex + '$';
-        return { html: text, text };
-      }
+function contentHarness(doc, data = {}) {
+  const win = doc.defaultView;
+  let onChanged;
+  win.chrome = {
+    storage: {
+      local: { get: (keys, callback) => callback(data) },
+      onChanged: { addListener: (listener) => { onChanged = listener; } }
     }
-  }
-
-  // Case B: mixed content
-  const originals = findKatexInRange(range);
-  if (originals.length === 0) return null;
-
-  const latexData = [];
-  for (let i = 0; i < originals.length; i++) {
-    latexData.push({
-      latex: extractLatex(originals[i]),
-      display: !!originals[i].closest('.' + DISPLAY_CLASS)
-    });
-  }
-
-  const fragment = range.cloneContents();
-  buildMixedText(fragment, latexData);
-
-  return {
-    html: new XMLSerializer().serializeToString(fragment),
-    text: fragment.textContent.replace(/\n{3,}/g, '\n\n')
   };
+  // The toast does not need animation or timers in copy integration tests.
+  win.requestAnimationFrame = () => {};
+  win.eval(CONTENT_SCRIPT);
+  const harness = {
+    change: (changes, area = 'local') => onChanged(changes, area),
+    copy: (range) => {
+      const selection = win.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      const clipboard = {};
+      const event = new win.Event('copy', { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'clipboardData', {
+        value: { setData: (type, value) => { clipboard[type] = value; } }
+      });
+      doc.dispatchEvent(event);
+      // Keep the original fixture unchanged between successive copies.
+      doc.querySelectorAll('body > div').forEach((el) => {
+        if (el.textContent === '✓ LaTeX') el.remove();
+      });
+      return event.defaultPrevented
+        ? { html: clipboard['text/html'], text: clipboard['text/plain'] }
+        : null;
+    }
+  };
+  contentHarnesses.set(doc, harness);
+  return harness;
+}
+
+function simulateCopy(doc, XMLSerializer, range) {
+  const harness = contentHarnesses.get(doc) || contentHarness(doc);
+  return harness.copy(range);
 }
 
 // ---------------------------------------------------------------------------
@@ -510,6 +491,177 @@ test('new markup mixed selection: LaTeX extracted, wrapper stripped', () => {
   assertNotContains(result.html, 'data-math-source', 'wrapper data-math-source leaked');
   assertNotContains(result.html, 'role="math"', 'wrapper role="math" leaked');
   assertNotContains(result.html, 'katex-html', 'katex internals leaked');
+});
+
+// ---- Delimiter preference: production script integration --------------------
+
+for (const [fixture, expected] of [
+  [INLINE_FORMULA, '\\(\\theta\\)'],
+  [DISPLAY_FORMULA, '\\[\n\\sin2x=t^2-1\n\\]'],
+  [NEW_INLINE_FORMULA, '\\(y=0\\)'],
+  [NEW_DISPLAY_FORMULA, '\\[\n\\frac{dy}{dx}=y\n\\]']
+]) {
+  test('bracket preference: single formula ' + JSON.stringify(expected), () => {
+    const { doc } = buildDoc(fixture);
+    const harness = contentHarness(doc, { [DELIMITER_KEY]: 'brackets' });
+    const range = doc.createRange();
+    range.selectNodeContents(doc.querySelector('.katex'));
+    const result = harness.copy(range);
+    assert(result.text === expected, 'unexpected plain text');
+    assert(result.html === expected, 'unexpected HTML');
+  });
+}
+
+for (const fixture of [MIXED_PARAGRAPH, TABLE_WITH_FORMULAS,
+  '<p>Value ' + NEW_INLINE_FORMULA + '</p>' + NEW_DISPLAY_FORMULA]) {
+  test('bracket preference: mixed selection preserves text and formatting', () => {
+    const { doc } = buildDoc(fixture);
+    const harness = contentHarness(doc, { [DELIMITER_KEY]: 'brackets' });
+    const range = doc.createRange();
+    range.selectNodeContents(doc.body);
+    const result = harness.copy(range);
+    for (const output of [result.text, result.html]) {
+      assertContains(output, '\\(');
+      assertContains(output, '\\)');
+      assertContains(output, '\\[\n');
+      assertContains(output, '\n\\]');
+      assertNotContains(output, '$');
+    }
+    assertNotContains(result.html, 'katex-html');
+    assertNotContains(result.html, 'data-math-source');
+    if (fixture === TABLE_WITH_FORMULAS) assertContains(result.html, '<table');
+    if (fixture === MIXED_PARAGRAPH) {
+      assertContains(result.html, '<strong');
+      assertContains(result.text, 'Therefore we can derive the final result.');
+    }
+  });
+}
+
+test('bracket conversion preserves literal dollars and handles partial formula selections', () => {
+  const { doc } = buildDoc('<p>Price: $5. Value: ' + INLINE_FORMULA + '</p>');
+  const harness = contentHarness(doc, { [DELIMITER_KEY]: 'brackets' });
+  const range = doc.createRange();
+  range.setStart(doc.querySelector('.katex-html .mord').firstChild, 0);
+  range.setEndAfter(doc.querySelector('p'));
+  assertContains(harness.copy(range).text, '\\(\\theta\\)');
+  range.selectNodeContents(doc.body);
+  const result = harness.copy(range);
+  assertContains(result.text, 'Price: $5. Value:');
+  assertContains(result.text, '\\(\\theta\\)');
+  assertContains(result.html, 'Price: $5. Value:');
+});
+
+test('delimiter changes update an open page immediately and ignore other storage areas', () => {
+  const { doc } = buildDoc(INLINE_FORMULA);
+  const harness = contentHarness(doc);
+  const range = doc.createRange();
+  range.selectNodeContents(doc.querySelector('.katex'));
+  assert(harness.copy(range).text === '$\\theta$');
+  harness.change({ [DELIMITER_KEY]: { newValue: 'brackets' } }, 'sync');
+  assert(harness.copy(range).text === '$\\theta$');
+  harness.change({ [DELIMITER_KEY]: { newValue: 'brackets' } });
+  assert(harness.copy(range).text === '\\(\\theta\\)');
+  harness.change({ [DELIMITER_KEY]: { newValue: 'dollar' } });
+  assert(harness.copy(range).text === '$\\theta$');
+  harness.change({ [DELIMITER_KEY]: { newValue: 'brackets' } });
+  harness.change({ [DELIMITER_KEY]: {} });
+  assert(harness.copy(range).text === '$\\theta$');
+  harness.change({ [DELIMITER_KEY]: { newValue: 'unknown' } });
+  assert(harness.copy(range).text === '$\\theta$');
+});
+
+for (const style of [undefined, 'unknown', 'dollar']) {
+  test('missing/invalid/dollar setting keeps the default: ' + style, () => {
+    const { doc } = buildDoc(DISPLAY_FORMULA);
+    const harness = contentHarness(doc, { [DELIMITER_KEY]: style });
+    const range = doc.createRange();
+    range.selectNodeContents(doc.querySelector('.katex'));
+    assert(harness.copy(range).text === '$$\n\\sin2x=t^2-1\n$$');
+  });
+}
+
+test('bracket setting respects disabled sites and plain-text selections', () => {
+  const { doc } = buildDoc(INLINE_FORMULA + PLAIN_PARAGRAPH);
+  const harness = contentHarness(doc, {
+    [DELIMITER_KEY]: 'brackets', 'formula-copy-whitelist': []
+  });
+  const range = doc.createRange();
+  range.selectNodeContents(doc.querySelector('.katex'));
+  assert(harness.copy(range) === null);
+  harness.change({ 'formula-copy-whitelist': { newValue: ['chatgpt.com'] } });
+  range.selectNodeContents(doc.querySelector('p'));
+  assert(harness.copy(range) === null);
+});
+
+// Popup: exercise initialization, saving, persistence, errors, and locales.
+function popupHarness(data = {}) {
+  const dom = new JSDOM(POPUP_HTML, { runScripts: 'outside-only' });
+  const win = dom.window;
+  let finishSave;
+  win.chrome = {
+    tabs: { query: (options, cb) => cb([{ url: 'https://chatgpt.com/' }]) },
+    runtime: { sendMessage: () => {}, lastError: null },
+    storage: { local: {
+      get: (keys, cb) => cb(data),
+      set: (next, cb) => {
+        if (cb) {
+          finishSave = (fail) => {
+            win.chrome.runtime.lastError = fail ? { message: 'Storage unavailable' } : null;
+            if (!fail) Object.assign(data, next);
+            cb();
+            win.chrome.runtime.lastError = null;
+          };
+        } else Object.assign(data, next);
+      }
+    } }
+  };
+  win.eval(POPUP_SCRIPT);
+  return { win, doc: win.document, finish: (fail = false) => finishSave(fail) };
+}
+
+test('popup button toggles, prevents duplicate saves, and restores the choice on reopen', () => {
+  const data = {};
+  const popup = popupHarness(data);
+  const button = popup.doc.getElementById('delimiter-style');
+  assert(button.textContent === '$' && !button.disabled);
+  button.click();
+  assert(button.disabled, 'button must be disabled while saving');
+  button.click(); // Must not queue another toggle while the write is pending.
+  popup.finish();
+  assert(!button.disabled && data[DELIMITER_KEY] === 'brackets');
+  assert(button.textContent === '\\(\\)');
+  assert(popup.doc.getElementById('delimiter-status') === null, 'no footer feedback');
+  const reopened = popupHarness(data);
+  assert(reopened.doc.getElementById('delimiter-style').textContent === '\\(\\)');
+  button.click();
+  popup.finish();
+  assert(button.textContent === '$' && data[DELIMITER_KEY] === 'dollar');
+});
+
+test('popup save failure preserves the saved choice and permits retry', () => {
+  const popup = popupHarness({ [DELIMITER_KEY]: 'brackets' });
+  const button = popup.doc.getElementById('delimiter-style');
+  button.click();
+  popup.finish(true);
+  assert(button.textContent === '\\(\\)' && !button.disabled);
+  button.click();
+  popup.finish();
+  assert(button.textContent === '$');
+});
+
+test('popup normalizes invalid preference and localizes the button in all eight languages', () => {
+  const popup = popupHarness({ [DELIMITER_KEY]: 'unknown' });
+  const button = popup.doc.getElementById('delimiter-style');
+  assert(button.textContent === '$');
+  for (const locale of ['en', 'zh-CN', 'ja', 'ko', 'fr', 'de', 'es', 'ru']) {
+    assert(popup.doc.documentElement.lang === locale);
+    assertNotContains(button.title, 'popupDelimiters');
+    assertNotContains(button.title, 'popupDelimiterHint');
+    assertContains(button.title, '$...$ / $$...$$');
+    assert(button.getAttribute('aria-label') === button.title);
+    if (locale !== 'en') assertNotContains(button.title, 'Math delimiters');
+    popup.doc.getElementById('lang-btn').click();
+  }
 });
 
 // ---------------------------------------------------------------------------
